@@ -26,7 +26,7 @@ function getData(url){
 }
 function drawGraph(data){
 	//variable holding svg attributes
-	const margin ={top:50,bottom:50,left:50,right:50}
+	const margin ={top:20,bottom:50,left:50,right:50}
 	const width = 950;
 	const height = 450;
 	const innerHeight = height - margin.top - margin.bottom;
@@ -79,6 +79,14 @@ function drawGraph(data){
 			.attr('r',4)
 			.attr('cx',d=> {return xScale(d.Seconds)})
 			.attr('cy',d=>{return yScale(d.Place)})
+			.style("fill",function(d){
+				if(d.Doping !== ""){
+					return "#990000"
+				}
+				else{
+					return "#004c4c"
+				}
+			})
 			.on("mouseover",function(d){
 				div.transition()
 					.duration(200)
@@ -87,8 +95,8 @@ function drawGraph(data){
 						"Year: " + d.Year + ", "+
 						"Time: " + d.Time + "</br>"+ "</br>" +
 						d.Doping)
-					.style("left",(160)+"px")
-					.style("top",(50)+"px")
+					.style("left",(event.pageX-80)+"px")
+					.style("top",(event.pageY+50)+"px")
 				
 			})
 			.on("mouseout",function(d){
@@ -108,6 +116,7 @@ function drawGraph(data){
 		.call(axisLeft(yScale));
 
 	getDescription(svg)
+	addLegend(svg)
 }
 
 function swap(x){
@@ -118,17 +127,35 @@ function swap(x){
 }
 function getDescription(svg){
 	svg.append("text")
-		.attr("class","title")
-		.attr("x","35%")
-		.attr("y","0%")
-		.text("Doping in Professional Bike Racing")
-	svg.append("text")
 		.attr("class","description")
-		.attr("x","35%")
-		.attr("y","88%")
+		.attr("x","33%")
+		.attr("y","95%")
 		.text("Seconds Behind Fastest Time")
 	svg.append("text")
 		.attr("class","yAxis-des")
 		.attr("transform","translate(-28,50) rotate(-90)")
 		.text("Ranking")
+}
+function addLegend(svg){
+	let legend = svg.append('g')
+		.attr("class","legend")
+		.attr("transform","translate(650,300)")
+	legend.append("circle")
+		.attr('r',4)
+		.style("fill","#990000")
+		.attr("cx","0%")
+		.attr("cy","0%")
+	legend.append("text")
+		.attr("x","1%")
+		.attr("y","1%")
+		.text("With doping allegations")
+	legend.append("circle")
+		.attr('r',4)
+		.style("fill","#004c4c")
+		.attr("cx","0%")
+		.attr("cy","5%")
+	legend.append("text")
+		.attr("x","1%")
+		.attr("y","6%")
+		.text("No doping allegations")
 }

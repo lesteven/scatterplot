@@ -95,8 +95,8 @@ function drawGraph(data){
 						"Year: " + d.Year + ", "+
 						"Time: " + d.Time + "</br>"+ "</br>" +
 						d.Doping)
-					.style("left",(event.pageX-80)+"px")
-					.style("top",(event.pageY+50)+"px")
+					.style("left",(event.pageX)+"px")
+					.style("top",(event.pageY)+"px")
 				
 			})
 			.on("mouseout",function(d){

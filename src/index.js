@@ -18,7 +18,7 @@ function getData(url){
 	fetch(url)
 	.then(response=>response.json())
 	.then(data=>{
-		console.log(data)
+		//console.log(data)
 		drawGraph(data)
 	})
 }
@@ -44,26 +44,51 @@ function drawGraph(data){
 
 
 	//set ranges
-	let xScale = scaleTime()
+	let xScale = scaleLinear()
 		.range([0,innerWidth]);
 
 	let yScale = scaleLinear()
 		.range([innerHeight,0]);
 
 	//format data
-	
+	/*
 	data.forEach(function(d){
 		d.Time = parseTime(d.Time)
-	})
+	})*/
 
 	//set domain
-	xScale.domain(extent(data,function(d){
-		//console.log(d.Time)
-		return d.Time
-	}))
-	yScale.domain(extent(data,function(d){
-		return d.Place
-	}))
 	
-	console.log(yScale.domain(),xScale.domain())
+	const xDomain = extent(data,d=>{return d.Seconds})
+	xScale.domain(swap(xDomain))
+	
+
+	const yDomain = extent(data,d=>{return d.Place})
+	yScale.domain(swap(yDomain))
+	
+	//console.log(yScale.domain(),xScale.domain())
+
+	//add dots
+	svg.selectAll('dot')
+		.data(data)
+		.enter().append('circle')
+			.attr('r',4)
+			.attr('cx',d=> {return xScale(d.Seconds)})
+			.attr('cy',d=>{return yScale(d.Place)})
+
+	//add x and y axis
+	svg.append('g')
+		.attr('class','x-axis')
+		.attr('transform','translate(0,'+ innerHeight +')')
+		.call(axisBottom(xScale));
+
+	svg.append('g')
+		.attr('class','x-axis')
+		.call(axisLeft(yScale));
+}
+
+function swap(x){
+	let temp = x[1];
+	x[1] = x[0];
+	x[0] = temp;
+	return x
 }

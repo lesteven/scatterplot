@@ -2,11 +2,13 @@
 import {
 	selectAll,
 	select,
-	selection} from 'd3-selection';
+	selection,
+	html} from 'd3-selection';
 import {timeParse} from 'd3-time-format';
 import {scaleTime,scaleLinear} from 'd3-scale';
 import {range,extent,max} from 'd3-array';
 import {axisBottom,axisLeft} from 'd3-axis';
+import {transition} from 'd3-transition';
 require('./index.css');
 
 
@@ -51,21 +53,24 @@ function drawGraph(data){
 		.range([innerHeight,0]);
 
 	//format data
-	/*
+	let lead = data.slice(0,1)
+	lead = lead[0].Seconds
+
 	data.forEach(function(d){
-		d.Time = parseTime(d.Time)
-	})*/
+		d.Seconds -= lead
+	})
 
 	//set domain
-	
 	const xDomain = extent(data,d=>{return d.Seconds})
 	xScale.domain(swap(xDomain))
 	
-
 	const yDomain = extent(data,d=>{return d.Place})
 	yScale.domain(swap(yDomain))
 	
-	//console.log(yScale.domain(),xScale.domain())
+	//shows data on mousehover
+	let div = select("body").append("div")
+		.attr("class","tooltip")
+		.style("opacity",0);
 
 	//add dots
 	svg.selectAll('dot')
@@ -74,6 +79,23 @@ function drawGraph(data){
 			.attr('r',4)
 			.attr('cx',d=> {return xScale(d.Seconds)})
 			.attr('cy',d=>{return yScale(d.Place)})
+			.on("mouseover",function(d){
+				div.transition()
+					.duration(200)
+					.style("opacity",.9)
+				div.html(d.Name + ": " + d.Nationality +"</br>"+
+						"Year: " + d.Year + ", "+
+						"Time: " + d.Time + "</br>"+ "</br>" +
+						d.Doping)
+					.style("left",(160)+"px")
+					.style("top",(50)+"px")
+				
+			})
+			.on("mouseout",function(d){
+				div.transition()
+					.duration(500)
+					.style("opacity",0)
+			})
 
 	//add x and y axis
 	svg.append('g')
@@ -84,6 +106,8 @@ function drawGraph(data){
 	svg.append('g')
 		.attr('class','x-axis')
 		.call(axisLeft(yScale));
+
+	getDescription(svg)
 }
 
 function swap(x){
@@ -91,4 +115,20 @@ function swap(x){
 	x[1] = x[0];
 	x[0] = temp;
 	return x
+}
+function getDescription(svg){
+	svg.append("text")
+		.attr("class","title")
+		.attr("x","35%")
+		.attr("y","0%")
+		.text("Doping in Professional Bike Racing")
+	svg.append("text")
+		.attr("class","description")
+		.attr("x","35%")
+		.attr("y","88%")
+		.text("Seconds Behind Fastest Time")
+	svg.append("text")
+		.attr("class","yAxis-des")
+		.attr("transform","translate(-28,50) rotate(-90)")
+		.text("Ranking")
 }
